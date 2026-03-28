@@ -8,14 +8,12 @@ public class Customer {
     private final String customerId;
     private String fullName;
     private String phone;
-    private String status;
     private final List<Account> accounts;
 
-    public Customer(String customerId, String fullName, String phone, String status) {
+    public Customer(String customerId, String fullName, String phone) {
         this.customerId = customerId;
         this.fullName = fullName;
         this.phone = phone;
-        this.status = status;
         this.accounts = new ArrayList<>();
     }
 
@@ -29,10 +27,6 @@ public class Customer {
 
     public String getPhone() {
         return phone;
-    }
-
-    public String getStatus() {
-        return status;
     }
 
     public List<Account> getAccounts() {
