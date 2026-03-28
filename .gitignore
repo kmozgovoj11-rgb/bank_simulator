@@ -1,0 +1,21 @@
+# Системные файлы
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Логи и временные файлы
+*.log
+*.tmp
+*.swp
+*.swo
+
+# Среда разработки и IDE
+.vscode/
+.idea/
+*.iml
+
+# Файлы с секретами
+.env
+.env.local
+*.key
+*.pem
