@@ -1,6 +1,7 @@
-package infrastructure.sqlite;
+package infrastructure.persistence.sqlite;
 
 import domain.repository.TransactionBroker;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 
