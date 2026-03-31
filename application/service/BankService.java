@@ -43,7 +43,7 @@ public class BankService {
             BigDecimal amount,
             String description) {
         TransferTransaction[] completed = new TransferTransaction[1];
-        transactionBroker.InTransaction(() ->{
+        transactionBroker.inTransaction(() -> {
         Account fromAccount = findRequiredAccount(fromAccountNumber);
         Account toAccount = findRequiredAccount(toAccountNumber);
 
