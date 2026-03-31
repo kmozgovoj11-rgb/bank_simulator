@@ -1,161 +1,128 @@
 @startuml BankSim_UML
 
 skinparam class {
-  BackgroundColor<<abstract>> LightBlue
-  BackgroundColor<<interface>> LightGreen
+  BackgroundColor<<Enumeration>> #FFFFCC
+  BackgroundColor<<Abstract>> #DDEEFF
+  BackgroundColor<<Interface>> #EEFFEE
   BorderColor Black
 }
 
-enum AccountStatus {
+' --- домен (слева направо: пользователь — клиент — счета — транзакции) ---
+
+enum AccountStatus <<Enumeration>> {
   ACTIVE
   CLOSED
   FROZEN
 }
 
+enum TransactionStatus <<Enumeration>> {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
 class Customer {
-  - customer_id: String
-  - fullName: String
-  - phone: String
-  - status: AccountStatus
-  - accounts: List<Account>
-  + add_account()
-  + remove_account()
-  + get_accounts()
+  customerId : String
+  fullName : String
+  phone : String
+  accounts : List<Account>
 }
 
 class User {
-  - login: String
-  - password_hash: String
-  - customer_id: String
-  + check_password()
-  + get_customer()
+  login : String
+  passwordHash : String
+  customerId : String
 }
 
-abstract class Account <<abstract>> {
-  - account_id: String
-  - number: String
-  - balance: Decimal
-  - currency: String
-  - status: AccountStatus
-  - owner: Customer
-  + deposit()
-  + withdraw()
-  + get_balance()
-  + close()
+abstract class Account <<Abstract>> {
+  accountId : String
+  number : String
+  balance : BigDecimal
+  currency : String
+  status : AccountStatus
+  owner : Customer
 }
 
-class DebitAccount {
-  - daily_limit: Money
-  + check_limit()
+class DebitAccount
+class SavingsAccount
+class CreditAccount
+
+abstract class Transaction <<Abstract>> {
+  transactionId : String
+  type : String
+  amount : BigDecimal
+  timestamp : Instant
+  status : TransactionStatus
+  description : String
 }
 
-class SavingsAccount {
-  - interest_rate: float
-  + calculate_interest()
-}
+class DepositTransaction
+class WithdrawTransaction
+class TransferTransaction
+class StoredTransaction
 
-class CreditAccount {
-  - credit_limit: Money
-  - current_debt: Money
-  + repay_debt()
-}
+' --- 1:1 User и Customer (один логин — один клиент) ---
+User "1" -- "1" Customer : по customerId
 
-abstract class Transaction <<abstract>> {
-  - transaction_id: String
-  - type: String
-  - amount: Decimal
-  - timestamp: Date
-  - status: String
-  - description: String
-  + validate()
-  + execute()
-  + rollback()
-}
+Customer "1" o-- "0..*" Account : содержит
+AccountStatus -- Account
 
-class DepositTransaction {
-  - source: String
-}
+User ..> Customer : ссылается на
 
-class WithdrawTransaction {
-  - destination: String
-}
+Account <|-- DebitAccount
+Account <|-- SavingsAccount
+Account <|-- CreditAccount
 
-class TransferTransaction {
-  - from_account: Account
-  - to_account: Account
-}
+TransactionStatus -- Transaction
+Account ..> Transaction : участвует в
 
-class BankService {
-  - account_repository: AccountRepository
-  - user_repository: UserRepository
-  + create_customer()
-  + transfer_money()
-  + get_account_history()
-  + find_account()
-}
+Transaction <|-- DepositTransaction
+Transaction <|-- WithdrawTransaction
+Transaction <|-- TransferTransaction
+Transaction <|-- StoredTransaction
 
-class AuthService {
-  - user_repository: UserRepository
-  + register_user()
-  + authenticate()
-}
+' --- persistence: явная связь репозиторий → класс домена ---
 
-interface AccountRepository <<interface>> {
-  + find_by_number()
-  + save()
-  + find_by_customer()
-  + delete()
-}
+interface AccountRepository <<Interface>>
+interface UserRepository <<Interface>>
+interface CustomerRepository <<Interface>>
+interface TransactionRepository <<Interface>>
+interface TransactionBroker <<Interface>>
 
-interface UserRepository <<interface>> {
-  + find_by_login()
-  + save()
-  + delete()
-}
-
-class Database {
-  - connection_string: String
-  + connect()
-  + disconnect()
-  + executeQuery()
-  + executeUpdate()
-}
-
-class SqlAccountRepository {
-  - db: Database
-}
-
-class SqlUserRepository {
-  - db: Database
-}
+class SqlAccountRepository
+class SqlUserRepository
+class SqlCustomerRepository
+class SqlTransactionRepository
+class SqliteTransactionBroker
+class Database
 
 SqlAccountRepository ..|> AccountRepository
 SqlUserRepository ..|> UserRepository
+SqlCustomerRepository ..|> CustomerRepository
+SqlTransactionRepository ..|> TransactionRepository
+SqliteTransactionBroker ..|> TransactionBroker
 
-SqlAccountRepository o--> Database : использует
-SqlUserRepository o--> Database : использует
+SqlAccountRepository --> Database
+SqlUserRepository --> Database
+SqlCustomerRepository --> Database
+SqlTransactionRepository --> Database
+SqliteTransactionBroker --> Database
 
+SqlUserRepository ..> User : хранит / загружает
+SqlAccountRepository ..> Account : хранит / загружает
+SqlCustomerRepository ..> Customer : хранит / загружает
+SqlTransactionRepository ..> Transaction : хранит / загружает
 
-Customer "1" o-- "0..*" Account : содержит
+' --- сервисы ---
 
-Account <|-- DebitAccount : наследование
-Account <|-- SavingsAccount : наследование
-Account <|-- CreditAccount : наследование
+class BankService
+class AuthService
 
-Account ..> Transaction : использует
-Transaction <|-- DepositTransaction : наследование
-Transaction <|-- WithdrawTransaction : наследование
-Transaction <|-- TransferTransaction : наследование
-TransferTransaction }o-- Account : from/to
+BankService ..> AccountRepository
+BankService ..> CustomerRepository
+BankService ..> TransactionRepository
+BankService ..> TransactionBroker
 
-BankService o--> AccountRepository : использует
-BankService o--> UserRepository : использует
-AuthService o--> UserRepository : использует
-
-User --> Customer : customer_id
-
-AccountStatus -- Customer : статус
-AccountStatus -- Account : статус
+AuthService ..> UserRepository
 
 @enduml
-
