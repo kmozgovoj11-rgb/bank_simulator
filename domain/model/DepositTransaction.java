@@ -48,7 +48,7 @@ public class DepositTransaction extends Transaction {
     public List<String> getInvolvedAccountNumbers() {
         return List.of(targetAccount.getNumber());
     }
-    
+
     public Account getTargetAccount() {
         return targetAccount;
     }
