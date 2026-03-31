@@ -48,5 +48,9 @@ public class WithdrawTransaction extends Transaction {
     public List<String> getInvolvedAccountNumbers() {
         return List.of(sourceAccount.getNumber());
     }
+
+    public Account getSourceAccount() {
+        return sourceAccount;
+    }
 }
 
