@@ -7,6 +7,7 @@ import domain.model.TransferTransaction;
 import domain.repository.AccountRepository;
 import domain.repository.CustomerRepository;
 import domain.repository.TransactionRepository;
+import domain.repository.TransactionBroker;
 import java.math.BigDecimal;
 import java.time.Instant;//для текущего времени
 import java.util.List;//
@@ -17,14 +18,17 @@ public class BankService {
     private final AccountRepository accountRepository;
     private final CustomerRepository customerRepository;
     private final TransactionRepository transactionRepository;
+    private final TransactionBroker transactionBroker;
 
     public BankService(
             AccountRepository accountRepository,
             CustomerRepository customerRepository,
-            TransactionRepository transactionRepository) {
+            TransactionRepository transactionRepository,
+            TransactionBroker transactionBroker) {
         this.accountRepository = accountRepository;
         this.customerRepository = customerRepository;
         this.transactionRepository = transactionRepository;
+        this.transactionBroker = transactionBroker;
     }
 
     public Customer createCustomer(String customerId, String fullName, String phone) {
@@ -38,6 +42,8 @@ public class BankService {
             String toAccountNumber,
             BigDecimal amount,
             String description) {
+        TransferTransaction[] completed = new TransferTransaction[1];
+        transactionBroker.InTransaction(() ->{
         Account fromAccount = findRequiredAccount(fromAccountNumber);
         Account toAccount = findRequiredAccount(toAccountNumber);
 
@@ -53,7 +59,9 @@ public class BankService {
         transactionRepository.save(transaction);
         accountRepository.save(fromAccount);
         accountRepository.save(toAccount);
-        return transaction;
+        completed[0] = transaction;
+            });
+        return completed[0];
     }
 
     public List<Transaction> getAccountHistory(String accountNumber) {
