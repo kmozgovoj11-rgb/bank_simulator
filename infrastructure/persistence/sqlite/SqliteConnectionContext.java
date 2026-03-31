@@ -1,4 +1,4 @@
-package infrastructure.sqlite;
+package infrastructure.persistence.sqlite;
 import java.sql.Connection;//библиотека для взаимодействия с бд
 //хранилище соединения с БД которое привязано к текущему потоку выполнения
 final class SqliteConnectionContext {
