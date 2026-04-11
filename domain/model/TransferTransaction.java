@@ -1,5 +1,4 @@
 package domain.model;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
@@ -29,6 +28,12 @@ public class TransferTransaction extends Transaction {
     @Override
     public boolean validate() {
         if (fromAccount == null || toAccount == null || getAmount() == null || getAmount().signum() <= 0) {
+            return false;
+        }
+        if (fromAccount == toAccount || fromAccount.getNumber().equals(toAccount.getNumber())) {
+            return false;
+        }
+        if (!fromAccount.isActive() || !toAccount.isActive()) {
             return false;
         }
         return fromAccount.getCurrency().equals(toAccount.getCurrency());

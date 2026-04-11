@@ -22,6 +22,7 @@ public class CreditAccount extends Account {
 
     @Override
     public void withdraw(BigDecimal amount) {
+        ensureAccountAllowsDepositsAndWithdrawals();
         validatePositiveAmount(amount);
         BigDecimal totalAvailable = getBalance().add(creditLimit).subtract(currentDebt);
         if (totalAvailable.compareTo(amount) < 0) {
@@ -50,6 +51,14 @@ public class CreditAccount extends Account {
             return;
         }
         currentDebt = currentDebt.subtract(amount);
+    }
+
+    @Override
+    protected void ensureCanBeClosed() {
+        super.ensureCanBeClosed();
+        if (currentDebt.compareTo(BigDecimal.ZERO) != 0) {
+            throw new IllegalStateException("Credit account can be closed only with zero debt");
+        }
     }
 
     public BigDecimal getCreditLimit() {
