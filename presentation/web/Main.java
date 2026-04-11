@@ -1,5 +1,4 @@
 package presentation.web;
-
 import application.service.AuthService;
 import application.service.BankService;
 import domain.model.AccountStatus;
@@ -16,7 +15,6 @@ import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.UUID;
-
 
 public final class Main {
     private Main() {}
@@ -55,7 +53,7 @@ public final class Main {
         }
 
         Customer alice = bankService.createCustomer("cust-1", "Alice", "+1000000000");
-        authService.registerUser("alice", "secret", alice.getCustomerId());
+        authService.registerUser("+79001234567", "secret12", alice.getCustomerId());
 
         DebitAccount acc1 =
                 new DebitAccount(UUID.randomUUID().toString(), "ACC-001", new BigDecimal("100.00"), "USD", AccountStatus.ACTIVE, alice);
