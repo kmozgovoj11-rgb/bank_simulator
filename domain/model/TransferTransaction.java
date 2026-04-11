@@ -31,6 +31,9 @@ public class TransferTransaction extends Transaction {
         if (fromAccount == null || toAccount == null || getAmount() == null || getAmount().signum() <= 0) {
             return false;
         }
+        if (fromAccount == toAccount || fromAccount.getNumber().equals(toAccount.getNumber())) {
+            return false;
+        }
         if (!fromAccount.isActive() || !toAccount.isActive()) {
             return false;
         }

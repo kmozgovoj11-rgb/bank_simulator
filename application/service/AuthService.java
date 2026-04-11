@@ -7,6 +7,7 @@ import java.security.MessageDigest;//содержит алгоритмы для 
 import java.security.NoSuchAlgorithmException;//обработчик ошибок в случае ненахождения алгоритма
 import java.util.HexFormat;//превращение байтов хэша в 16ричную строку чтобы можно было занести в бд
 import java.util.Optional;
+import application.validation.AuthCredentialsValidator;
 
 public class AuthService {
     private final UserRepository userRepository;
@@ -16,19 +17,25 @@ public class AuthService {
     }
 
     public User registerUser(String login, String plainPassword, String customerId) {
-        userRepository.findByLogin(login).ifPresent(existing -> {//если логин уже есть в existing через лямбда функцию передаем ошибку
-            throw new IllegalArgumentException("User with this login already exists");
+        String phoneLogin = AuthCredentialsValidator.normalizeAndValidateLogin(login);
+        AuthCredentialsValidator.validatePassword(plainPassword);
+
+        userRepository.findByLogin(phoneLogin).ifPresent(existing -> {
+            throw new IllegalArgumentException("User with this phone already exists");
         });
 
         String passwordHash = hashPassword(plainPassword);
-        User user = new User(login, passwordHash, customerId);
+        User user = new User(phoneLogin, passwordHash, customerId);
         userRepository.save(user);
         return user;
     }
 
     public Optional<User> authenticate(String login, String plainPassword) {
+        String phoneLogin = AuthCredentialsValidator.normalizeAndValidateLogin(login);
+        AuthCredentialsValidator.validatePasswordForLoginAttempt(plainPassword);
+
         String passwordHash = hashPassword(plainPassword);
-        return userRepository.findByLogin(login)
+        return userRepository.findByLogin(phoneLogin)
                 .filter(user -> user.getPasswordHash().equals(passwordHash));
     }
 

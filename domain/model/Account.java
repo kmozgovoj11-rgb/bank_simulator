@@ -1,7 +1,6 @@
 package domain.model;
 
-import java.math.BigDecimal;//с суммами лучше через децимал работать
-
+import java.math.BigDecimal; // с суммами лучше через decimal работать
 
 public abstract class Account {
     private final String accountId;
@@ -46,7 +45,14 @@ public abstract class Account {
     }
 
     public void close() {
+        ensureCanBeClosed();
         status = AccountStatus.CLOSED;
+    }
+
+    protected void ensureCanBeClosed() {
+        if (balance.compareTo(BigDecimal.ZERO) != 0) {
+            throw new IllegalStateException("Account can be closed only with zero balance");
+        }
     }
 
     protected void ensureAccountAllowsDepositsAndWithdrawals() {
@@ -85,4 +91,4 @@ public abstract class Account {
     public Customer getOwner() {
         return owner;
     }
-}
+

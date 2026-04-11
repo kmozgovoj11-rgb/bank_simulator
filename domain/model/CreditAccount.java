@@ -54,6 +54,14 @@ public class CreditAccount extends Account {
         currentDebt = currentDebt.subtract(amount);
     }
 
+    @Override
+    protected void ensureCanBeClosed() {
+        super.ensureCanBeClosed();
+        if (currentDebt.compareTo(BigDecimal.ZERO) != 0) {
+            throw new IllegalStateException("Credit account can be closed only with zero debt");
+        }
+    }
+
     public BigDecimal getCreditLimit() {
         return creditLimit;
     }
