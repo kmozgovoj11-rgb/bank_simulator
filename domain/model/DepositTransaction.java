@@ -25,7 +25,10 @@ public class DepositTransaction extends Transaction {
 
     @Override
     public boolean validate() {
-        return targetAccount != null && getAmount() != null && getAmount().signum() > 0;
+        return targetAccount != null
+                && targetAccount.isActive()
+                && getAmount() != null
+                && getAmount().signum() > 0;
     }
 
     @Override
@@ -53,4 +56,3 @@ public class DepositTransaction extends Transaction {
         return targetAccount;
     }
 }
-
