@@ -1,5 +1,6 @@
 package domain.model;
 
+
 import java.math.BigDecimal;
 
 public class CreditAccount extends Account {
@@ -22,6 +23,7 @@ public class CreditAccount extends Account {
 
     @Override
     public void withdraw(BigDecimal amount) {
+        ensureAccountAllowsDepositsAndWithdrawals();
         validatePositiveAmount(amount);
         BigDecimal totalAvailable = getBalance().add(creditLimit).subtract(currentDebt);
         if (totalAvailable.compareTo(amount) < 0) {

@@ -25,7 +25,10 @@ public class WithdrawTransaction extends Transaction {
 
     @Override
     public boolean validate() {
-        return sourceAccount != null && getAmount() != null && getAmount().signum() > 0;
+        return sourceAccount != null
+                && sourceAccount.isActive()
+                && getAmount() != null
+                && getAmount().signum() > 0;
     }
 
     @Override
@@ -53,6 +56,4 @@ public class WithdrawTransaction extends Transaction {
         return sourceAccount;
     }
 }
-
-
 

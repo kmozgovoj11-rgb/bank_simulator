@@ -2,6 +2,7 @@ package domain.model;
 
 import java.math.BigDecimal;//с суммами лучше через децимал работать
 
+
 public abstract class Account {
     private final String accountId;
     private final String number;
@@ -26,13 +27,15 @@ public abstract class Account {
     }
 
     public void deposit(BigDecimal amount) {
-        validatePositiveAmount(amount);//проверка на положительную сумму
-        balance = balance.add(amount);//с децималом нельзя += использовать
+        ensureAccountAllowsDepositsAndWithdrawals();
+        validatePositiveAmount(amount);
+        balance = balance.add(amount);
     }
 
     public void withdraw(BigDecimal amount) {
+        ensureAccountAllowsDepositsAndWithdrawals();
         validatePositiveAmount(amount);
-        if (balance.compareTo(amount) < 0) { //сравненивает два числа возвращает -1 меньше суммы в скобках 0 если равно
+        if (balance.compareTo(amount) < 0) {
             throw new IllegalStateException("Insufficient balance");
         }
         balance = balance.subtract(amount);
@@ -44,6 +47,13 @@ public abstract class Account {
 
     public void close() {
         status = AccountStatus.CLOSED;
+    }
+
+    protected void ensureAccountAllowsDepositsAndWithdrawals() {
+        if (status != AccountStatus.ACTIVE) {
+            throw new IllegalStateException(
+                    "Account " + number + " is " + status + "; only ACTIVE accounts allow this operation");
+        }
     }
 
     protected void validatePositiveAmount(BigDecimal amount) {
@@ -68,8 +78,11 @@ public abstract class Account {
         return status;
     }
 
+    public boolean isActive() {
+        return status == AccountStatus.ACTIVE;
+    }
+
     public Customer getOwner() {
         return owner;
     }
 }
-
