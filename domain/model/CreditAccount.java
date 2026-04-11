@@ -1,5 +1,6 @@
 package domain.model;
 
+
 import java.math.BigDecimal;
 
 public class CreditAccount extends Account {

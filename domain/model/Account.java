@@ -1,6 +1,6 @@
 package domain.model;
 
-import java.math.BigDecimal;//с суммами лучше через децимал работать
+import java.math.BigDecimal; // с суммами лучше через decimal работать
 
 public abstract class Account {
     private final String accountId;
@@ -91,6 +91,4 @@ public abstract class Account {
     public Customer getOwner() {
         return owner;
     }
-}
-
 
