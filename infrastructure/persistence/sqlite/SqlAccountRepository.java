@@ -7,7 +7,6 @@ import domain.model.Customer;
 import domain.model.DebitAccount;
 import domain.model.SavingsAccount;
 import domain.repository.AccountRepository;
-
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -59,7 +58,10 @@ public class SqlAccountRepository implements AccountRepository {
                     return Optional.empty();
                 }
                 Customer owner = mapOwner(rs);
-                return Optional.of(mapAccount(rs, owner));
+                List<Account> ownerAccounts = loadAccountsForCustomer(connection, owner);
+                return ownerAccounts.stream()
+                        .filter(account -> account.getNumber().equals(number))
+                        .findFirst();
             }
         }
     }
@@ -159,12 +161,21 @@ public class SqlAccountRepository implements AccountRepository {
         try (PreparedStatement ps = connection.prepareStatement(SELECT_BASE + " WHERE a.customer_id = ? ORDER BY a.number")) {
             ps.setString(1, customerId);
             try (ResultSet rs = ps.executeQuery()) {
-                Customer owner = null;
+                if (!rs.next()) {
+                    return List.of();
+                }
+                Customer owner = mapOwner(rs);
+                return loadAccountsForCustomer(connection, owner);
+            }
+        }
+    }
+
+    private static List<Account> loadAccountsForCustomer(Connection connection, Customer owner) throws SQLException {
+        try (PreparedStatement ps = connection.prepareStatement(SELECT_BASE + " WHERE a.customer_id = ? ORDER BY a.number")) {
+            ps.setString(1, owner.getCustomerId());
+            try (ResultSet rs = ps.executeQuery()) {
                 List<Account> accounts = new ArrayList<>();
                 while (rs.next()) {
-                    if (owner == null) {
-                        owner = mapOwner(rs);
-                    }
                     Account account = mapAccount(rs, owner);
                     owner.addAccount(account);
                     accounts.add(account);
