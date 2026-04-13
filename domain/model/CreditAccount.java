@@ -1,6 +1,5 @@
 package domain.model;
 
-
 import java.math.BigDecimal;
 
 public class CreditAccount extends Account {
@@ -17,8 +16,8 @@ public class CreditAccount extends Account {
             BigDecimal creditLimit,
             BigDecimal currentDebt) {
         super(accountId, number, balance, currency, status, owner);
-        this.creditLimit = creditLimit;
-        this.currentDebt = currentDebt;
+        this.creditLimit = requireNonNegative(creditLimit, "Credit limit");
+        this.currentDebt = requireNonNegative(currentDebt, "Current debt");
     }
 
     @Override
@@ -60,6 +59,21 @@ public class CreditAccount extends Account {
         if (currentDebt.compareTo(BigDecimal.ZERO) != 0) {
             throw new IllegalStateException("Credit account can be closed only with zero debt");
         }
+    }
+
+    @Override
+    protected void rollbackWithdraw(BigDecimal amount) {
+        validatePositiveAmount(amount);
+        if (currentDebt.compareTo(BigDecimal.ZERO) > 0) {
+            BigDecimal debtReduction = currentDebt.min(amount);
+            currentDebt = currentDebt.subtract(debtReduction);
+            BigDecimal remaining = amount.subtract(debtReduction);
+            if (remaining.compareTo(BigDecimal.ZERO) > 0) {
+                super.rollbackWithdraw(remaining);
+            }
+            return;
+        }
+        super.rollbackWithdraw(amount);
     }
 
     public BigDecimal getCreditLimit() {
