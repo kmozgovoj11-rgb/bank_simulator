@@ -1,6 +1,7 @@
 package domain.model;
 
-import java.math.BigDecimal; // с суммами лучше через decimal работать
+import java.math.BigDecimal;
+import java.util.Objects;
 
 public abstract class Account {
     private final String accountId;
@@ -17,12 +18,12 @@ public abstract class Account {
             String currency,
             AccountStatus status,
             Customer owner) {
-        this.accountId = accountId;
-        this.number = number;
-        this.balance = balance;
-        this.currency = currency;
-        this.status = status;
-        this.owner = owner;
+        this.accountId = requireNonBlank(accountId, "Account id is required");
+        this.number = requireNonBlank(number, "Account number is required");
+        this.balance = requireNonNegative(balance);
+        this.currency = requireNonBlank(currency, "Currency is required");
+        this.status = Objects.requireNonNull(status, "Account status is required");
+        this.owner = Objects.requireNonNull(owner, "Account owner is required");
     }
 
     public void deposit(BigDecimal amount) {
@@ -55,6 +56,9 @@ public abstract class Account {
         }
     }
 
+    /**
+     * Frozen and closed accounts must not accept deposits or withdrawals (including transfer legs).
+     */
     protected void ensureAccountAllowsDepositsAndWithdrawals() {
         if (status != AccountStatus.ACTIVE) {
             throw new IllegalStateException(
@@ -66,6 +70,23 @@ public abstract class Account {
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Amount must be positive");
         }
+    }
+
+    private static String requireNonBlank(String value, String message) {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException(message);
+        }
+        return value;
+    }
+
+    private static BigDecimal requireNonNegative(BigDecimal value) {
+        if (value == null) {
+            throw new IllegalArgumentException("Balance is required");
+        }
+        if (value.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Balance cannot be negative");
+        }
+        return value;
     }
 
     public String getAccountId() {
@@ -91,4 +112,4 @@ public abstract class Account {
     public Customer getOwner() {
         return owner;
     }
-
+}

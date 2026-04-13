@@ -6,9 +6,9 @@ public class User {
     private final String customerId;
 
     public User(String login, String passwordHash, String customerId) {
-        this.login = login;
-        this.passwordHash = passwordHash;
-        this.customerId = customerId;
+        this.login = requireNonBlank(login, "User login is required");
+        this.passwordHash = requireNonBlank(passwordHash, "Password hash is required");
+        this.customerId = requireNonBlank(customerId, "Customer id is required");
     }
 
     public String getLogin() {
@@ -21,6 +21,13 @@ public class User {
 
     public String getCustomerId() {
         return customerId;
+    }
+
+    private static String requireNonBlank(String value, String message) {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException(message);
+        }
+        return value;
     }
 }
 
