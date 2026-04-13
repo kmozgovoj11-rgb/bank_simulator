@@ -9,7 +9,12 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
 import java.util.Optional;
-
+/*
+  Регистрация и аутентификация пользователей по телефону (логин) и паролю.
+ Логин всегда приводится к каноническому виду через AuthCredentialsValidator -> normalizeAndValidateLogin(String)
+ и совпадает с тем, как сохраняется телефон клиента при BankService -> createCustomer(String, String, String)}.
+ Пароль в хранилище не лежит в открытом виде: сохраняется и сравнивается SHA-256 в шестнадцатеричном виде #hashPassword.
+ */
 public class AuthService {
     private final UserRepository userRepository;
     private final CustomerRepository customerRepository;
@@ -18,7 +23,10 @@ public class AuthService {
         this.userRepository = userRepository;
         this.customerRepository = customerRepository;
     }
-
+    /*
+      Создаёт учётную запись, если логин (телефон) ещё не занят и указанный клиент уже есть в системе.
+      Порядок проверок: нормализация логина и пароля → уникальность телефона → существование клиента → хеш и сохранение.
+     */
     public User registerUser(String login, String plainPassword, String customerId) {
         String phoneLogin = AuthCredentialsValidator.normalizeAndValidateLogin(login);
         AuthCredentialsValidator.validatePassword(plainPassword);
@@ -37,7 +45,10 @@ public class AuthService {
         userRepository.save(user);
         return user;
     }
-
+    /*
+      Проверяет пароль: хеш введённого значения сравнивается с сохранённым.
+      При неверном пароле или отсутствии пользователя возвращается пустой без различия причин.
+     */
     public Optional<User> authenticate(String login, String plainPassword) {
         String phoneLogin = AuthCredentialsValidator.normalizeAndValidateLogin(login);
         AuthCredentialsValidator.validatePasswordForLoginAttempt(plainPassword);
@@ -46,7 +57,7 @@ public class AuthService {
         return userRepository.findByLogin(phoneLogin)
                 .filter(user -> user.getPasswordHash().equals(passwordHash));
     }
-
+    // SHA-256 от UTF-8 строки пароля, нижний регистр hex — для простого сравнения с полем в БД. 
     private String hashPassword(String plainPassword) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
