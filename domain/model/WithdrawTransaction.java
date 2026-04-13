@@ -43,7 +43,7 @@ public class WithdrawTransaction extends Transaction {
 
     @Override
     public void rollback() {
-        sourceAccount.deposit(getAmount());
+        sourceAccount.rollbackWithdraw(getAmount());
         markFailed();
     }
 
@@ -56,4 +56,3 @@ public class WithdrawTransaction extends Transaction {
         return sourceAccount;
     }
 }
-

@@ -14,7 +14,7 @@ public class SavingsAccount extends Account {
             Customer owner,
             BigDecimal interestRate) {
         super(accountId, number, balance, currency, status, owner);
-        this.interestRate = interestRate;
+        this.interestRate = requireNonNegative(interestRate, "Interest rate");
     }
 
     public BigDecimal calculateInterest() {

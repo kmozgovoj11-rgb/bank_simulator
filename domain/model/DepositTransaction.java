@@ -43,7 +43,7 @@ public class DepositTransaction extends Transaction {
 
     @Override
     public void rollback() {
-        targetAccount.withdraw(getAmount());
+        targetAccount.rollbackDeposit(getAmount());
         markFailed();
     }
 
