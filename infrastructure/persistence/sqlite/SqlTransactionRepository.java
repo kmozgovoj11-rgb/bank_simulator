@@ -1,5 +1,6 @@
 package infrastructure.persistence.sqlite;
 
+import domain.model.Account;
 import domain.model.DepositTransaction;
 import domain.model.StoredTransaction;
 import domain.model.Transaction;
@@ -17,6 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+
+  //Сохранение и выборка транзакций в SQLite. 
 public class SqlTransactionRepository implements TransactionRepository {
     private final Database database;
 
@@ -26,6 +29,7 @@ public class SqlTransactionRepository implements TransactionRepository {
 
     @Override
     public void save(Transaction transaction) {
+        // При вызове из TransactionBroker — то же JDBC-соединение, что и у репозитория счетов.
         Connection ctx = SqliteConnectionContext.get();
         if (ctx != null) {
             try {
@@ -43,6 +47,7 @@ public class SqlTransactionRepository implements TransactionRepository {
     }
 
     private static void save(Connection connection, Transaction transaction) throws SQLException {
+        // Денормализация для таблицы: from/to nullable в зависимости от типа; валюта берётся со «основного» счёта операции.
         String fromNumber;
         String toNumber;
         String currency;
@@ -69,7 +74,7 @@ public class SqlTransactionRepository implements TransactionRepository {
         }
 
         long timestampMs = transaction.getTimestamp().toEpochMilli();
-
+        // UPSERT: повторное сохранение по тому же transaction_id обновляет строку (например, после смены status).
         try (PreparedStatement ps = connection.prepareStatement(
                 """
                 INSERT INTO transactions (
@@ -118,6 +123,7 @@ public class SqlTransactionRepository implements TransactionRepository {
 
     private static List<Transaction> findByAccountNumber(Connection connection, String accountNumber)
             throws SQLException {
+        // Депозит: только to; снятие: только from; перевод: оба поля — поэтому OR.
         try (PreparedStatement ps = connection.prepareStatement(
                 """
                 SELECT transaction_id, type, amount, currency, timestamp_ms, status, description,
@@ -137,7 +143,8 @@ public class SqlTransactionRepository implements TransactionRepository {
             }
         }
     }
-
+    
+    // Из БД читаем облегчённую модель без ссылок на живые аккаунты (достаточно для списка истории). 
     private static StoredTransaction mapRow(ResultSet rs) throws SQLException {
         return new StoredTransaction(
                 rs.getString("transaction_id"),

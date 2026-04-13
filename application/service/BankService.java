@@ -13,8 +13,13 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;//для генерации уникальных айдишек
+import java.util.UUID;  //для генерации уникальных айдишек
 
+
+/**
+ * Прикладной сервис банка: создание клиентов, переводы и чтение истории.
+ * Сохранение счетов и транзакций при переводе выполняется внутри одной БД-транзакции через {@link TransactionBroker}.
+ */
 public class BankService {
     private final AccountRepository accountRepository;
     private final CustomerRepository customerRepository;
@@ -39,12 +44,15 @@ public class BankService {
         if (fullName == null || fullName.isBlank()) {
             throw new IllegalArgumentException("Customer full name is required");
         }
+        // чтоб тот же формат, что и логин при входе — единая нормализация телефона.
         String normalizedPhone = AuthCredentialsValidator.normalizeAndValidateLogin(phone);
         Customer customer = new Customer(customerId.trim(), fullName.trim(), normalizedPhone);
         customerRepository.save(customer);
         return customer;
     }
-
+    /*
+      Перевод между счетами: атомарно (в одной транзакции БД) списывает, зачисляет, пишет запись операции и обновляет оба счёта.
+     */
     public TransferTransaction transferMoney(
             String fromAccountNumber,
             String toAccountNumber,
@@ -71,7 +79,7 @@ public class BankService {
         });
         return completed[0];
     }
-
+    // для истории операций по номеру счёта (включая переводы, где счёт указан как from или to)
     public List<Transaction> getAccountHistory(String accountNumber) {
         return transactionRepository.findByAccountNumber(accountNumber);
     }
@@ -79,7 +87,7 @@ public class BankService {
     public Optional<Account> findAccount(String accountNumber) {
         return accountRepository.findByNumber(accountNumber);
     }
-
+    // Счёт по номеру или исключение, если не найден (для сценариев, где отсутствие счёта — ошибка вызова).
     private Account findRequiredAccount(String accountNumber) {
         return accountRepository
                 .findByNumber(accountNumber)

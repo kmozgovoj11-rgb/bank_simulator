@@ -2,6 +2,11 @@ package domain.model;
 
 import java.math.BigDecimal;
 
+/*
+  Кредитный счёт: помимо баланса учитывается лимит и текущий долг.
+  Снятие сначала тратит баланс, недостающее уходит в долг (в пределах лимита).
+ */
+
 public class CreditAccount extends Account {
     private final BigDecimal creditLimit;
     private BigDecimal currentDebt;
@@ -23,6 +28,7 @@ public class CreditAccount extends Account {
     @Override
     public void withdraw(BigDecimal amount) {
         ensureAccountAllowsDepositsAndWithdrawals();
+        // Доступно «наличными» + неиспользованный лимит (уже занятый долг уменьшает доступное).
         validatePositiveAmount(amount);
         BigDecimal totalAvailable = getBalance().add(creditLimit).subtract(currentDebt);
         if (totalAvailable.compareTo(amount) < 0) {
@@ -31,12 +37,16 @@ public class CreditAccount extends Account {
         if (getBalance().compareTo(amount) >= 0) {
             super.withdraw(amount);
         } else {
+        // Часть с баланса, остаток — увеличение долга (super.withdraw обнуляет баланс до нуля).
             BigDecimal remaining = amount.subtract(getBalance());
             super.withdraw(getBalance());
             currentDebt = currentDebt.add(remaining);
         }
     }
-
+    
+    
+    //Погашение долга: сумма списывается с долга; если платёж больше долга, излишек зачисляется на баланс через deposit
+    
     public void repayDebt(BigDecimal amount) {
         validatePositiveAmount(amount);
         if (currentDebt.compareTo(BigDecimal.ZERO) <= 0) {
@@ -63,6 +73,7 @@ public class CreditAccount extends Account {
 
     @Override
     protected void rollbackWithdraw(BigDecimal amount) {
+        // Зеркалит withdraw: приоритетно уменьшаем долг, остаток — через откат по балансу базового счёта.
         validatePositiveAmount(amount);
         if (currentDebt.compareTo(BigDecimal.ZERO) > 0) {
             BigDecimal debtReduction = currentDebt.min(amount);

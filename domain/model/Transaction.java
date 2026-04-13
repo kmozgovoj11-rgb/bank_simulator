@@ -33,7 +33,7 @@ public abstract class Transaction {
 
     public abstract void rollback();
 
-    /** Account numbers affected by this transaction (for history queries). */
+    // Номера счетов, на которые влияет данная транзакция (для запросов истории)
     public abstract List<String> getInvolvedAccountNumbers();
 
     protected void markCompleted() {
