@@ -1,4 +1,5 @@
 package presentation.web;
+
 import application.service.AuthService;
 import application.service.BankService;
 import domain.model.AccountStatus;
@@ -16,6 +17,7 @@ import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.UUID;
 
+
 public final class Main {
     private Main() {}
 
@@ -32,7 +34,7 @@ public final class Main {
 
         var bankService = new BankService(
                 accountRepository, customerRepository, transactionRepository, transactionBroker);
-        var authService = new AuthService(userRepository);
+        var authService = new AuthService(userRepository, customerRepository);
 
         demoIfEmpty(bankService, authService, accountRepository, database);
         System.out.println("Bank simulator ready. DB: " + dbPath.toAbsolutePath());

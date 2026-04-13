@@ -53,8 +53,8 @@ public class TransferTransaction extends Transaction {
 
     @Override
     public void rollback() {
-        toAccount.withdraw(getAmount());
-        fromAccount.deposit(getAmount());
+        toAccount.rollbackDeposit(getAmount());
+        fromAccount.rollbackWithdraw(getAmount());
         markFailed();
     }
 
