@@ -1,8 +1,8 @@
 package domain.model;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Collections;
+import java.util.List;
 
 public class Customer {
     private final String customerId;
@@ -11,9 +11,9 @@ public class Customer {
     private final List<Account> accounts;
 
     public Customer(String customerId, String fullName, String phone) {
-        this.customerId = customerId;
-        this.fullName = fullName;
-        this.phone = phone;
+        this.customerId = requireNonBlank(customerId, "Customer id is required");
+        this.fullName = requireNonBlank(fullName, "Customer full name is required");
+        this.phone = requireNonBlank(phone, "Customer phone is required");
         this.accounts = new ArrayList<>();
     }
 
@@ -30,11 +30,19 @@ public class Customer {
     }
 
     public List<Account> getAccounts() {
-        return Collections.unmodifiableList(accounts); //обертка,необходимая для неизменяемости возвращаемого списка
+        return Collections.unmodifiableList(accounts); // необходимо для неизменяемости возвращаемого списка
     }
 
     public void addAccount(Account account) {
         accounts.add(account);
     }
+
+    private static String requireNonBlank(String value, String message) {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException(message);
+        }
+        return value;
+    }
 }
+
 
