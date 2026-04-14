@@ -57,6 +57,7 @@ public abstract class Account {
     }
 
 
+  //Замороженные и закрытые счета не должны принимать депозиты или снятие средств (включая этапы перевода). 
     protected void ensureAccountAllowsDepositsAndWithdrawals() {
         if (status != AccountStatus.ACTIVE) {
             throw new IllegalStateException(
@@ -71,13 +72,15 @@ public abstract class Account {
     }
 
 
-    protected void rollbackWithdraw(BigDecimal amount) {
+  //Отменить ранее успешный вывод средств независимо от текущего состояния счета.
+     protected void rollbackWithdraw(BigDecimal amount) {
         validatePositiveAmount(amount);
         balance = balance.add(amount);
     }
 
 
-    protected void rollbackDeposit(BigDecimal amount) {
+  //Отмените ранее успешно внесенный депозит независимо от текущего состояния счета.
+     protected void rollbackDeposit(BigDecimal amount) {
         validatePositiveAmount(amount);
         if (balance.compareTo(amount) < 0) {
             throw new IllegalStateException("Cannot rollback deposit: balance is smaller than the rollback amount");

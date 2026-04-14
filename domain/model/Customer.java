@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+// Клиент банка; список счетов ведётся здесь, наружу отдаётся только неизменяемый view. 
+
 public class Customer {
     private final String customerId;
     private String fullName;

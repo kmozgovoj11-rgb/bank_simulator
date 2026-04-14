@@ -2,7 +2,14 @@ package application.validation;
 
 import java.util.regex.Pattern;
 
-
+ /* Правила для логина (телефон РФ) и пароля в сценариях {@link com.banksim.application.service.AuthService}.
+  Ввод трактуется как мобильный номер: допускаются привычные форматы ({@code +7…}, {@code 8…}, {@code 9…} и т.д.),
+  из строки извлекаются только цифры и приводятся к каноническому виду {@code +7} и ровно 10 следующих цифр
+  (итого 11 цифр национальной части, начинается с {@code 7}). Так один и тот же абонент не заведётся дважды из-за разного набора скобок и пробелов.
+  
+  Пароль. Общие ограничения (длина сверху, пробелы, управляющие символы) одинаковы для регистрации и входа.
+  Минимальная длина проверяется только при регистрации — при входе короткий пароль не отсекается заранее,
+  чтобы не подсказывать атакующему «порог» длины до сравнения хеша.*/
 public final class AuthCredentialsValidator {
 
     private static final Pattern NORMALIZED_LOGIN = Pattern.compile("^\\+7\\d{10}$");
@@ -11,7 +18,14 @@ public final class AuthCredentialsValidator {
     private static final int PASSWORD_MAX = 128;
 
     private AuthCredentialsValidator() {}
-
+     /* Нормализует строку логина к виду +7XXXXXXXXXX или бросает IllegalArgumentException.
+        10 цифр — считаем кодом без страны (например 9001234567) и подставляем ведущую 7;
+        11 цифр с 8 — заменяем на  7… (формат 8XXXXXXXXXX);
+        11 цифр с 7 — уже «полный» национальный номер;
+        иначе — ошибка (не мобильный РФ в ожидаемом виде).
+        Нецифровые символы отбрасываются до разбора; пустая строка после этого — ошибка.
+        @return канонический логин, например +79001234567
+     */
     public static String normalizeAndValidateLogin(String rawLogin) {
         if (rawLogin == null) {
             throw new IllegalArgumentException("Login (phone) is required");
@@ -48,7 +62,10 @@ public final class AuthCredentialsValidator {
         }
         return canonical;
     }
-
+    /*
+      Пароль при регистрации: общие правила плюс минимальная длина
+      (см. #PASSWORD_MIN} -> 6 символов).
+     */
     public static void validatePassword(String plainPassword) {
         validatePasswordCommon(plainPassword);
         int len = plainPassword.length();
@@ -57,11 +74,14 @@ public final class AuthCredentialsValidator {
         }
     }
 
-
+     /* Пароль при попытке входа: только «гигиена» — null, только пробелы, слишком длинная строка, управляющие символы.
+      Минимальная длина не проверяется: заведомо неверный короткий пароль дойдёт до сравнения хеша и даст тот же
+      пустой результат, что и неверный длинный, без лишней подсказки проверяющему.
+     */
     public static void validatePasswordForLoginAttempt(String plainPassword) {
         validatePasswordCommon(plainPassword);
     }
-
+    // Общая часть проверок пароля для регистрации и входа (верхняя граница длины, пробелы, control chars). 
     private static void validatePasswordCommon(String plainPassword) {
         if (plainPassword == null) {
             throw new IllegalArgumentException("Password is required");

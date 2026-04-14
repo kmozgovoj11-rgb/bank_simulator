@@ -4,6 +4,10 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
+/**
+ * Перевод между двумя разными активными счетами в одной валюте.
+ * Самозапрещение и проверка валюты — в validate; списание/зачисление идут через доменные Account(withdraw) и Account(deposit).
+ */
 public class TransferTransaction extends Transaction {
     private final Account fromAccount;
     private final Account toAccount;
@@ -53,6 +57,7 @@ public class TransferTransaction extends Transaction {
 
     @Override
     public void rollback() {
+        // Обратный порядок относительно execute: сначала откат зачисления, затем откат списания.
         toAccount.rollbackDeposit(getAmount());
         fromAccount.rollbackWithdraw(getAmount());
         markFailed();
