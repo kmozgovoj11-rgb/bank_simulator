@@ -4,7 +4,11 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
-public abstract class Transaction {
+/*
+  Базовая операция по счетам: шаблон «проверка → выполнение → статус».
+  Конкретные типы задают правила валидации и изменение балансов;
+ */
+public abstract class Transaction implements Command {
     private final String transactionId;
     private final String type;
     private final BigDecimal amount;
@@ -27,13 +31,18 @@ public abstract class Transaction {
         this.description = description;
     }
 
+    // Предусловия операции (счета, сумма, валюта, активность и т.д.) без побочных эффектов. 
     public abstract boolean validate();
 
+    // Применяет команду к домену; при невалидности помечает FAILED и бросает исключение. 
+    @Override
     public abstract void execute();
 
+    // Откат команды (обратные движения по счетам); для персистентного слоя может не вызываться.
+    @Override
     public abstract void rollback();
 
-    // Номера счетов, на которые влияет данная транзакция (для запросов истории)
+    // Номера счетов, по которым эту операцию нужно находить в выборке истории (from/to или одна сторона).
     public abstract List<String> getInvolvedAccountNumbers();
 
     protected void markCompleted() {
