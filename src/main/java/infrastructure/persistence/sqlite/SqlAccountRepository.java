@@ -1,6 +1,7 @@
 package infrastructure.persistence.sqlite;
 
 import domain.model.Account;
+import domain.model.AccountFactory;
 import domain.model.AccountStatus;
 import domain.model.CreditAccount;
 import domain.model.Customer;
@@ -18,6 +19,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 public class SqlAccountRepository implements AccountRepository {
+    private static final AccountFactory ACCOUNT_FACTORY = new AccountFactory();
     private static final String SELECT_BASE =
             """
             SELECT a.account_id, a.number, a.customer_id, a.account_kind, a.balance, a.currency, a.status,
@@ -225,26 +227,26 @@ public class SqlAccountRepository implements AccountRepository {
         AccountStatus status = AccountStatus.valueOf(rs.getString("status"));
         String kind = rs.getString("account_kind");
 
-        return switch (kind) {
-            case "DEBIT" -> new DebitAccount(accountId, number, balance, currency, status, owner);
-            case "SAVINGS" -> new SavingsAccount(
-                    accountId,
-                    number,
-                    balance,
-                    currency,
-                    status,
-                    owner,
-                    new BigDecimal(rs.getString("interest_rate")));
-            case "CREDIT" -> new CreditAccount(
-                    accountId,
-                    number,
-                    balance,
-                    currency,
-                    status,
-                    owner,
-                    new BigDecimal(rs.getString("credit_limit")),
-                    new BigDecimal(rs.getString("current_debt")));
-            default -> throw new IllegalStateException("Unknown account_kind in DB: " + kind);
-        };
+        BigDecimal interestRate = rs.getString("interest_rate") == null
+                ? null
+                : new BigDecimal(rs.getString("interest_rate"));
+        BigDecimal creditLimit = rs.getString("credit_limit") == null
+                ? null
+                : new BigDecimal(rs.getString("credit_limit"));
+        BigDecimal currentDebt = rs.getString("current_debt") == null
+                ? null
+                : new BigDecimal(rs.getString("current_debt"));
+
+        return ACCOUNT_FACTORY.createAccount(
+                kind,
+                accountId,
+                number,
+                balance,
+                currency,
+                status,
+                owner,
+                interestRate,
+                creditLimit,
+                currentDebt);
     }
 }
