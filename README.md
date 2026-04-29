@@ -28,9 +28,9 @@
 
 Паттерн Facade нужен, чтобы предоставить простой интерфейс к сложной подсистеме. В проекте банковская логика включает работу с клиентами, счетами, транзакциями, репозиториями и БД-транзакциями. Чтобы внешний код не работал со всеми этими классами напрямую, используется фасад.
 В проекте фасад реализован через интерфейс:
-application/service/BankFacade.java
+`application/service/BankFacade.java`
 И его реализация: 
-application/service/BankService.java`
+`application/service/BankService.java`
 BankFacade задает простой набор операций:
 - создать клиента;
 - перевести деньги;
@@ -43,14 +43,14 @@ BankService скрывает детали реализации: обращени
 **Factory Method**
 
 Паттерн Factory Method нужен, чтобы вынести создание объектов в отдельное место и не привязывать остальной код к конкретным классам создаваемых объектов.
-В проекте этот паттерн реализован в классе: domain/model/AccountFactory.java
+В проекте этот паттерн реализован в классе: `domain/model/AccountFactory.java`
 Фабрика создает конкретный тип счета по значению accountKind:
 - `DEBIT` -> `DebitAccount`;
 - `SAVINGS` -> `SavingsAccount`;
 - `CREDIT` -> `CreditAccount`.
 
 Используется фабрика в классе:
-infrastructure/persistence/sqlite/SqlAccountRepository.java
+`infrastructure/persistence/sqlite/SqlAccountRepository.java`
 
 Когда счет загружается из базы данных, в таблице хранится строковое поле `account_kind`. Репозиторий читает данные из БД и передает их в `AccountFactory`, а фабрика решает, какой конкретный класс счета нужно создать.
 
@@ -60,12 +60,12 @@ infrastructure/persistence/sqlite/SqlAccountRepository.java
 
 Паттерн Command нужен, чтобы представить действие как отдельный объект. Такой объект можно выполнить, сохранить, передать, а при необходимости откатить.
 В проекте паттерн реализован через интерфейс:
-domain/model/Command.java
+`domain/model/Command.java`
 Интерфейс задает два метода:
 - execute() - выполнить команду;
 - rollback() - откатить команду.
 Абстрактный класс:
-domain/model/Transaction.java`
+`domain/model/Transaction.java`
 реализует `Command`, а конкретные банковские операции наследуются от него:
 - DepositTransaction - пополнение счета;
 - WithdrawTransaction - снятие денег;
