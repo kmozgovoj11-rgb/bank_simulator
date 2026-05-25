@@ -1,5 +1,4 @@
 import { createBrowserRouter } from "react-router-dom";
-import AdminPanel from "./components/AdminPanel";
 import Dashboard from "./components/Dashboard";
 import Goals from "./components/Goals";
 import Login from "./components/Login";
@@ -30,9 +29,5 @@ export const router = createBrowserRouter([
   {
     path: "/goals",
     Component: Goals,
-  },
-  {
-    path: "/admin",
-    Component: AdminPanel,
   },
 ]);
