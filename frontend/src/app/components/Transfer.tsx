@@ -93,10 +93,17 @@ import {
       setSuccess("");
       setSubmitting(true);
   
+      const session = loadSession();
+      if (!session) {
+        navigate("/login");
+        return;
+      }
+  
       try {
         await createTransfer({
+          customerId: session.customer.customerId,
           fromAccountNumber,
-          toAccountNumber,
+          recipient: toAccountNumber,
           amount,
           description,
         });
