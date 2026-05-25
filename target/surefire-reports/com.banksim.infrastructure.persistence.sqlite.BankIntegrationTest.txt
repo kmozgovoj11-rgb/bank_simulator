@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.banksim.infrastructure.persistence.sqlite.BankIntegrationTest
 -------------------------------------------------------------------------------
-Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.487 s -- in com.banksim.infrastructure.persistence.sqlite.BankIntegrationTest
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.807 s -- in com.banksim.infrastructure.persistence.sqlite.BankIntegrationTest

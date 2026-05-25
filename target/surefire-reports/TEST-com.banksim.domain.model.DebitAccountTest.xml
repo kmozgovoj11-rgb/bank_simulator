@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" version="3.0.2" name="com.banksim.domain.model.DebitAccountTest" time="0.021" tests="6" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" version="3.0.2" name="com.banksim.domain.model.DebitAccountTest" time="0.017" tests="6" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="21"/>
     <property name="sun.cpu.isalist" value="amd64"/>
@@ -15,7 +15,7 @@
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="user.country" value="RU"/>
     <property name="sun.boot.library.path" value="C:\Program Files\Eclipse Adoptium\jdk-21.0.9.10-hotspot\bin"/>
-    <property name="sun.java.command" value="C:\Users\User\AppData\Local\Temp\surefire11372851945699897375\surefirebooter-20260525140541628_3.jar C:\Users\User\AppData\Local\Temp\surefire11372851945699897375 2026-05-25T14-05-41_505-jvmRun1 surefire-20260525140541628_1tmp surefire_0-20260525140541628_2tmp"/>
+    <property name="sun.java.command" value="C:\Users\User\AppData\Local\Temp\surefire8953279898709034200\surefirebooter-20260525182321263_3.jar C:\Users\User\AppData\Local\Temp\surefire8953279898709034200 2026-05-25T18-23-20_932-jvmRun1 surefire-20260525182321263_1tmp surefire_0-20260525182321263_2tmp"/>
     <property name="jdk.debug" value="release"/>
     <property name="surefire.test.class.path" value="C:\Users\User\banksimulator\target\test-classes;C:\Users\User\banksimulator\target\classes;C:\Users\User\.m2\repository\org\xerial\sqlite-jdbc\3.47.1.0\sqlite-jdbc-3.47.1.0.jar;C:\Users\User\.m2\repository\org\junit\jupiter\junit-jupiter\5.11.4\junit-jupiter-5.11.4.jar;C:\Users\User\.m2\repository\org\junit\jupiter\junit-jupiter-api\5.11.4\junit-jupiter-api-5.11.4.jar;C:\Users\User\.m2\repository\org\opentest4j\opentest4j\1.3.0\opentest4j-1.3.0.jar;C:\Users\User\.m2\repository\org\junit\platform\junit-platform-commons\1.11.4\junit-platform-commons-1.11.4.jar;C:\Users\User\.m2\repository\org\apiguardian\apiguardian-api\1.1.2\apiguardian-api-1.1.2.jar;C:\Users\User\.m2\repository\org\junit\jupiter\junit-jupiter-params\5.11.4\junit-jupiter-params-5.11.4.jar;C:\Users\User\.m2\repository\org\junit\jupiter\junit-jupiter-engine\5.11.4\junit-jupiter-engine-5.11.4.jar;C:\Users\User\.m2\repository\org\junit\platform\junit-platform-engine\1.11.4\junit-platform-engine-1.11.4.jar;C:\Users\User\.m2\repository\org\mockito\mockito-core\5.14.2\mockito-core-5.14.2.jar;C:\Users\User\.m2\repository\net\bytebuddy\byte-buddy\1.15.4\byte-buddy-1.15.4.jar;C:\Users\User\.m2\repository\net\bytebuddy\byte-buddy-agent\1.15.4\byte-buddy-agent-1.15.4.jar;C:\Users\User\.m2\repository\org\objenesis\objenesis\3.3\objenesis-3.3.jar;C:\Users\User\.m2\repository\org\mockito\mockito-junit-jupiter\5.14.2\mockito-junit-jupiter-5.14.2.jar;"/>
     <property name="sun.cpu.endian" value="little"/>
@@ -30,7 +30,7 @@
     <property name="line.separator" value="&#10;"/>
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
-    <property name="surefire.real.class.path" value="C:\Users\User\AppData\Local\Temp\surefire11372851945699897375\surefirebooter-20260525140541628_3.jar"/>
+    <property name="surefire.real.class.path" value="C:\Users\User\AppData\Local\Temp\surefire8953279898709034200\surefirebooter-20260525182321263_3.jar"/>
     <property name="user.script" value=""/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="java.runtime.version" value="21.0.9+10-LTS"/>
@@ -59,10 +59,10 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="65.0"/>
   </properties>
-  <testcase name="testCloseAccount" classname="com.banksim.domain.model.DebitAccountTest" time="0.0"/>
-  <testcase name="testWithdrawInsufficientBalance" classname="com.banksim.domain.model.DebitAccountTest" time="0.0"/>
-  <testcase name="testWithdraw" classname="com.banksim.domain.model.DebitAccountTest" time="0.015"/>
-  <testcase name="testCloseAccountWithBalance" classname="com.banksim.domain.model.DebitAccountTest" time="0.0"/>
-  <testcase name="testDeposit" classname="com.banksim.domain.model.DebitAccountTest" time="0.0"/>
+  <testcase name="testCloseAccount" classname="com.banksim.domain.model.DebitAccountTest" time="0.002"/>
+  <testcase name="testWithdrawInsufficientBalance" classname="com.banksim.domain.model.DebitAccountTest" time="0.003"/>
+  <testcase name="testWithdraw" classname="com.banksim.domain.model.DebitAccountTest" time="0.002"/>
+  <testcase name="testCloseAccountWithBalance" classname="com.banksim.domain.model.DebitAccountTest" time="0.003"/>
+  <testcase name="testDeposit" classname="com.banksim.domain.model.DebitAccountTest" time="0.002"/>
   <testcase name="testCreateDebitAccount" classname="com.banksim.domain.model.DebitAccountTest" time="0.0"/>
 </testsuite>
