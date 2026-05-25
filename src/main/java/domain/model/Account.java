@@ -1,9 +1,13 @@
 package domain.model;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Objects;
 
 public abstract class Account {
+    private static final int MONEY_SCALE = 2;
+    private static final RoundingMode MONEY_ROUNDING = RoundingMode.HALF_UP;
+
     private final String accountId;
     private final String number;
     private BigDecimal balance;
@@ -28,17 +32,17 @@ public abstract class Account {
 
     public void deposit(BigDecimal amount) {
         ensureAccountAllowsDepositsAndWithdrawals();
-        validatePositiveAmount(amount);
-        balance = balance.add(amount);
+        BigDecimal normalizedAmount = normalizePositiveAmount(amount);
+        balance = balance.add(normalizedAmount);
     }
 
     public void withdraw(BigDecimal amount) {
         ensureAccountAllowsDepositsAndWithdrawals();
-        validatePositiveAmount(amount);
-        if (balance.compareTo(amount) < 0) {
+        BigDecimal normalizedAmount = normalizePositiveAmount(amount);
+        if (balance.compareTo(normalizedAmount) < 0) {
             throw new IllegalStateException("Insufficient balance");
         }
-        balance = balance.subtract(amount);
+        balance = balance.subtract(normalizedAmount);
     }
 
     public BigDecimal getBalance() {
@@ -56,8 +60,6 @@ public abstract class Account {
         }
     }
 
-
-  //Замороженные и закрытые счета не должны принимать депозиты или снятие средств (включая этапы перевода). 
     protected void ensureAccountAllowsDepositsAndWithdrawals() {
         if (status != AccountStatus.ACTIVE) {
             throw new IllegalStateException(
@@ -66,26 +68,20 @@ public abstract class Account {
     }
 
     protected void validatePositiveAmount(BigDecimal amount) {
-        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Amount must be positive");
-        }
+        normalizePositiveAmount(amount);
     }
 
-
-  //Отменить ранее успешный вывод средств независимо от текущего состояния счета.
-     protected void rollbackWithdraw(BigDecimal amount) {
-        validatePositiveAmount(amount);
-        balance = balance.add(amount);
+    protected void rollbackWithdraw(BigDecimal amount) {
+        BigDecimal normalizedAmount = normalizePositiveAmount(amount);
+        balance = balance.add(normalizedAmount);
     }
 
-
-  //Отмените ранее успешно внесенный депозит независимо от текущего состояния счета.
-     protected void rollbackDeposit(BigDecimal amount) {
-        validatePositiveAmount(amount);
-        if (balance.compareTo(amount) < 0) {
+    protected void rollbackDeposit(BigDecimal amount) {
+        BigDecimal normalizedAmount = normalizePositiveAmount(amount);
+        if (balance.compareTo(normalizedAmount) < 0) {
             throw new IllegalStateException("Cannot rollback deposit: balance is smaller than the rollback amount");
         }
-        balance = balance.subtract(amount);
+        balance = balance.subtract(normalizedAmount);
     }
 
     protected static String requireNonBlank(String value, String message) {
@@ -96,13 +92,26 @@ public abstract class Account {
     }
 
     protected static BigDecimal requireNonNegative(BigDecimal value, String fieldName) {
+        BigDecimal normalizedValue = normalizeMoney(value, fieldName);
+        if (normalizedValue.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException(fieldName + " cannot be negative");
+        }
+        return normalizedValue;
+    }
+
+    protected static BigDecimal normalizeMoney(BigDecimal value, String fieldName) {
         if (value == null) {
             throw new IllegalArgumentException(fieldName + " is required");
         }
-        if (value.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException(fieldName + " cannot be negative");
+        return value.setScale(MONEY_SCALE, MONEY_ROUNDING);
+    }
+
+    protected static BigDecimal normalizePositiveAmount(BigDecimal amount) {
+        BigDecimal normalizedAmount = normalizeMoney(amount, "Amount");
+        if (normalizedAmount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Amount must be positive");
         }
-        return value;
+        return normalizedAmount;
     }
 
     public String getAccountId() {

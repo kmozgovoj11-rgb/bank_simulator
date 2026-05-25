@@ -13,4 +13,3 @@ public class DebitAccount extends Account {
         super(accountId, number, balance, currency, status, owner);
     }
 }
-

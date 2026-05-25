@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -71,10 +72,16 @@ public final class Database {
                         currency TEXT NOT NULL,
                         status TEXT NOT NULL,
                         interest_rate TEXT,
+                        last_interest_accrual_ms INTEGER,
                         credit_limit TEXT,
                         current_debt TEXT
                     )
                     """);
+            addColumnIfMissing(
+                    connection,
+                    "accounts",
+                    "last_interest_accrual_ms",
+                    "ALTER TABLE accounts ADD COLUMN last_interest_accrual_ms INTEGER");
             statement.execute(
                     """
                     CREATE TABLE IF NOT EXISTS transactions (
@@ -91,6 +98,25 @@ public final class Database {
                     """);
             statement.execute("CREATE INDEX IF NOT EXISTS idx_transactions_from ON transactions(from_account_number)");
             statement.execute("CREATE INDEX IF NOT EXISTS idx_transactions_to ON transactions(to_account_number)");
+        }
+    }
+
+    private static void addColumnIfMissing(
+            Connection connection,
+            String tableName,
+            String columnName,
+            String alterSql) throws SQLException {
+        try (Statement statement = connection.createStatement();
+                ResultSet columns = statement.executeQuery("PRAGMA table_info(" + tableName + ")")) {
+            while (columns.next()) {
+                if (columnName.equals(columns.getString("name"))) {
+                    return;
+                }
+            }
+        }
+
+        try (Statement statement = connection.createStatement()) {
+            statement.execute(alterSql);
         }
     }
 }

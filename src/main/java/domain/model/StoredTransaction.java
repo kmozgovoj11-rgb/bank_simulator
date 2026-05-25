@@ -2,9 +2,10 @@ package domain.model;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-//Транзакция только для чтения из базы данных
-//Используется для отображения истории операций
-//Нельзя выполнить или откатить
+
+/**
+ * Read-only transaction loaded from persistence (or re-saved journal row). Cannot be executed again.
+ */
 public final class StoredTransaction extends Transaction {
     private final String currency;
     private final String fromAccountNumber;
@@ -29,9 +30,9 @@ public final class StoredTransaction extends Transaction {
 
     private static void validateNumbers(String type, String from, String to) {
         switch (type) {
-            case "DEPOSIT" -> {
+            case "DEPOSIT", "INTEREST" -> {
                 if (to == null) {
-                    throw new IllegalArgumentException("DEPOSIT requires toAccountNumber");
+                    throw new IllegalArgumentException(type + " requires toAccountNumber");
                 }
             }
             case "WITHDRAW" -> {
@@ -62,26 +63,24 @@ public final class StoredTransaction extends Transaction {
     }
 
     @Override
-    public boolean validate() {  //транзация валидна
+    public boolean validate() {
         return true;
     }
 
     @Override
     public void execute() {
-        //Защита от случайного выполнения старых транзакций из истории
         throw new UnsupportedOperationException("Persisted transaction record is read-only");
     }
 
     @Override
     public void rollback() {
-        //Защита от случайного выполнения старых транзакций из истории
         throw new UnsupportedOperationException("Persisted transaction record is read-only");
     }
 
     @Override
     public java.util.List<String> getInvolvedAccountNumbers() {
         return switch (getType()) {
-            case "DEPOSIT" -> java.util.List.of(toAccountNumber);
+            case "DEPOSIT", "INTEREST" -> java.util.List.of(toAccountNumber);
             case "WITHDRAW" -> java.util.List.of(fromAccountNumber);
             case "TRANSFER" -> java.util.List.of(fromAccountNumber, toAccountNumber);
             default -> throw new IllegalStateException("Unsupported history type: " + getType());

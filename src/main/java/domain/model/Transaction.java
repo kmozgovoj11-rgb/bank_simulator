@@ -1,14 +1,20 @@
 package domain.model;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
 import java.util.List;
 
-/*
-  Базовая операция по счетам: шаблон «проверка → выполнение → статус».
-  Конкретные типы задают правила валидации и изменение балансов;
+/**
+ * Базовый класс банковской операции.
+ * Реализует паттерн Command: каждая операция знает, как себя выполнить ({@link #execute()})
+ * и как откатить ({@link #rollback()}). Конкретные подклассы — DepositTransaction,
+ * WithdrawTransaction, TransferTransaction, InterestAccrualTransaction.
  */
 public abstract class Transaction implements Command {
+    private static final int MONEY_SCALE = 2;
+    private static final RoundingMode MONEY_ROUNDING = RoundingMode.HALF_UP;
+
     private final String transactionId;
     private final String type;
     private final BigDecimal amount;
@@ -25,24 +31,20 @@ public abstract class Transaction implements Command {
             String description) {
         this.transactionId = transactionId;
         this.type = type;
-        this.amount = amount;
+        this.amount = normalizeAmount(amount);
         this.timestamp = timestamp;
         this.status = status;
         this.description = description;
     }
 
-    // Предусловия операции (счета, сумма, валюта, активность и т.д.) без побочных эффектов. 
     public abstract boolean validate();
 
-    // Применяет команду к домену; при невалидности помечает FAILED и бросает исключение. 
     @Override
     public abstract void execute();
 
-    // Откат команды (обратные движения по счетам); для персистентного слоя может не вызываться.
     @Override
     public abstract void rollback();
 
-    // Номера счетов, по которым эту операцию нужно находить в выборке истории (from/to или одна сторона).
     public abstract List<String> getInvolvedAccountNumbers();
 
     protected void markCompleted() {
@@ -75,5 +77,12 @@ public abstract class Transaction implements Command {
 
     public String getDescription() {
         return description;
+    }
+
+    private static BigDecimal normalizeAmount(BigDecimal amount) {
+        if (amount == null) {
+            throw new IllegalArgumentException("Transaction amount is required");
+        }
+        return amount.setScale(MONEY_SCALE, MONEY_ROUNDING);
     }
 }
