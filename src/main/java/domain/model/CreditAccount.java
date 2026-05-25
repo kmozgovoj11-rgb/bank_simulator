@@ -2,11 +2,10 @@ package domain.model;
 
 import java.math.BigDecimal;
 
-/*
-  Кредитный счёт: помимо баланса учитывается лимит и текущий долг.
-  Снятие сначала тратит баланс, недостающее уходит в долг (в пределах лимита).
+/**
+ * Кредитный счёт: помимо баланса учитывается лимит и текущий долг.
+ * Снятие сначала тратит баланс, недостающее уходит в долг (в пределах лимита).
  */
-
 public class CreditAccount extends Account {
     private final BigDecimal creditLimit;
     private BigDecimal currentDebt;
@@ -28,8 +27,8 @@ public class CreditAccount extends Account {
     @Override
     public void withdraw(BigDecimal amount) {
         ensureAccountAllowsDepositsAndWithdrawals();
-        // Доступно «наличными» + неиспользованный лимит (уже занятый долг уменьшает доступное).
         validatePositiveAmount(amount);
+        // Доступно «наличными» + неиспользованный лимит (уже занятый долг уменьшает доступное).
         BigDecimal totalAvailable = getBalance().add(creditLimit).subtract(currentDebt);
         if (totalAvailable.compareTo(amount) < 0) {
             throw new IllegalStateException("Credit limit exceeded");
@@ -37,16 +36,16 @@ public class CreditAccount extends Account {
         if (getBalance().compareTo(amount) >= 0) {
             super.withdraw(amount);
         } else {
-        // Часть с баланса, остаток — увеличение долга (super.withdraw обнуляет баланс до нуля).
+            // Часть с баланса, остаток — увеличение долга (super.withdraw обнуляет баланс до нуля).
             BigDecimal remaining = amount.subtract(getBalance());
             super.withdraw(getBalance());
             currentDebt = currentDebt.add(remaining);
         }
     }
-    
-    
-    //Погашение долга: сумма списывается с долга; если платёж больше долга, излишек зачисляется на баланс через deposit
-    
+
+    /**
+     * Погашение долга: сумма списывается с долга; если платёж больше долга, излишек зачисляется на баланс через {@link #deposit}.
+     */
     public void repayDebt(BigDecimal amount) {
         validatePositiveAmount(amount);
         if (currentDebt.compareTo(BigDecimal.ZERO) <= 0) {

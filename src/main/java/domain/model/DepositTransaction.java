@@ -4,8 +4,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
-// Зачисление на один счёт; неактивный/замороженный счёт отсекается в validate (через Account#isActive())
-
+/** Зачисление на один счёт; неактивный/замороженный счёт отсекается в {@link #validate} (через {@link Account#isActive()}). */
 public class DepositTransaction extends Transaction {
     private final Account targetAccount;
 

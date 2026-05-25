@@ -4,30 +4,30 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
-/** Снятие с одного счёта; лимиты кредита и достаточность средств обрабатываются в {@link Account#withdraw} (в т.ч. {@link CreditAccount}). */
-public class WithdrawTransaction extends Transaction {
-    private final Account sourceAccount;
+/** Monthly interest accrual for a savings account. */
+public class InterestAccrualTransaction extends Transaction {
+    private final SavingsAccount targetAccount;
 
-    public WithdrawTransaction(
+    public InterestAccrualTransaction(
             String transactionId,
             BigDecimal amount,
             Instant timestamp,
             String description,
-            Account sourceAccount) {
+            SavingsAccount targetAccount) {
         super(
                 transactionId,
-                "WITHDRAW",
+                "INTEREST",
                 amount,
                 timestamp,
                 TransactionStatus.PENDING,
                 description);
-        this.sourceAccount = sourceAccount;
+        this.targetAccount = targetAccount;
     }
 
     @Override
     public boolean validate() {
-        return sourceAccount != null
-                && sourceAccount.isActive()
+        return targetAccount != null
+                && targetAccount.isActive()
                 && getAmount() != null
                 && getAmount().signum() > 0;
     }
@@ -36,25 +36,24 @@ public class WithdrawTransaction extends Transaction {
     public void execute() {
         if (!validate()) {
             markFailed();
-            throw new IllegalStateException("Withdraw validation failed");
+            throw new IllegalStateException("Interest accrual validation failed");
         }
-        sourceAccount.withdraw(getAmount());
+        targetAccount.deposit(getAmount());
         markCompleted();
     }
 
     @Override
     public void rollback() {
-        sourceAccount.rollbackWithdraw(getAmount());
+        targetAccount.rollbackDeposit(getAmount());
         markFailed();
     }
 
     @Override
     public List<String> getInvolvedAccountNumbers() {
-        return List.of(sourceAccount.getNumber());
+        return List.of(targetAccount.getNumber());
     }
 
-    public Account getSourceAccount() {
-        return sourceAccount;
+    public SavingsAccount getTargetAccount() {
+        return targetAccount;
     }
 }
-

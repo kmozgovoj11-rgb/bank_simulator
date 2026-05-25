@@ -6,7 +6,7 @@ import java.util.List;
 
 /**
  * Перевод между двумя разными активными счетами в одной валюте.
- * Самозапрещение и проверка валюты — в validate; списание/зачисление идут через доменные Account(withdraw) и Account(deposit).
+ * Самозапрещение и проверка валюты — в {@link #validate}; списание/зачисление идут через доменные {@link Account#withdraw}/{@link Account#deposit}.
  */
 public class TransferTransaction extends Transaction {
     private final Account fromAccount;
@@ -76,3 +76,4 @@ public class TransferTransaction extends Transaction {
         return List.of(fromAccount.getNumber(), toAccount.getNumber());
     }
 }
+

@@ -1,13 +1,14 @@
 package infrastructure.persistence.sqlite;
 
-import domain.model.Customer;
-import domain.repository.CustomerRepository;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Objects;
 import java.util.Optional;
+
+import domain.model.Customer;
+import domain.repository.CustomerRepository;
 
 public class SqlCustomerRepository implements CustomerRepository {
     private final Database database;
@@ -33,10 +34,40 @@ public class SqlCustomerRepository implements CustomerRepository {
         }
     }
 
+    @Override
+    public Optional<Customer> findByPhone(String phone) {
+        Connection ctx = SqliteConnectionContext.get();
+        if (ctx != null) {
+            try {
+                return findByPhone(ctx, phone);
+            } catch (SQLException e) {
+                throw new IllegalStateException(e);
+            }
+        }
+        try (Connection connection = database.openConnection()) {
+            return findByPhone(connection, phone);
+        } catch (SQLException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
     private static Optional<Customer> findByCustomerId(Connection connection, String customerId) throws SQLException {
         try (PreparedStatement ps =
                 connection.prepareStatement("SELECT customer_id, full_name, phone FROM customers WHERE customer_id = ?")) {
             ps.setString(1, customerId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) {
+                    return Optional.empty();
+                }
+                return Optional.of(mapRow(rs));
+            }
+        }
+    }
+
+    private static Optional<Customer> findByPhone(Connection connection, String phone) throws SQLException {
+        try (PreparedStatement ps =
+                connection.prepareStatement("SELECT customer_id, full_name, phone FROM customers WHERE phone = ?")) {
+            ps.setString(1, phone);
             try (ResultSet rs = ps.executeQuery()) {
                 if (!rs.next()) {
                     return Optional.empty();

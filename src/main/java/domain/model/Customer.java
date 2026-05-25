@@ -4,8 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-// Клиент банка; список счетов ведётся здесь, наружу отдаётся только неизменяемый view. 
-
+/** Клиент банка; список счетов ведётся здесь, наружу отдаётся только неизменяемый view. */
 public class Customer {
     private final String customerId;
     private String fullName;
@@ -32,7 +31,7 @@ public class Customer {
     }
 
     public List<Account> getAccounts() {
-        return Collections.unmodifiableList(accounts); // необходимо для неизменяемости возвращаемого списка
+        return Collections.unmodifiableList(accounts);
     }
 
     public void addAccount(Account account) {

@@ -1,9 +1,9 @@
 package infrastructure.persistence.sqlite;
 
-import domain.repository.TransactionBroker;
-
 import java.sql.Connection;
 import java.sql.SQLException;
+
+import domain.repository.TransactionBroker;
 
 public final class SqliteTransactionBroker implements TransactionBroker {
     private final Database database;
@@ -39,6 +39,7 @@ public final class SqliteTransactionBroker implements TransactionBroker {
         try {
             connection.rollback();
         } catch (SQLException ignored) {
+            // rollback
         }
     }
 }
