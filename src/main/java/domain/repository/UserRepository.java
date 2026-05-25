@@ -1,7 +1,8 @@
 package domain.repository;
 
-import domain.model.User;
 import java.util.Optional;
+
+import domain.model.User;
 
 public interface UserRepository {
     Optional<User> findByLogin(String login);

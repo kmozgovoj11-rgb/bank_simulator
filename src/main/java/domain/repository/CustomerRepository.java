@@ -1,10 +1,13 @@
 package domain.repository;
 
-import domain.model.Customer;
 import java.util.Optional;
+
+import domain.model.Customer;
 
 public interface CustomerRepository {
     Optional<Customer> findByCustomerId(String customerId);
+
+    Optional<Customer> findByPhone(String phone);
 
     void save(Customer customer);
 

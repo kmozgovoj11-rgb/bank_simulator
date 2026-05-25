@@ -1,8 +1,8 @@
 package domain.repository;
 
+import java.util.List;
 
 import domain.model.Transaction;
-import java.util.List;
 
 public interface TransactionRepository {
     void save(Transaction transaction);

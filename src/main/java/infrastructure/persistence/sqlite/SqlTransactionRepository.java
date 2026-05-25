@@ -1,13 +1,5 @@
 package infrastructure.persistence.sqlite;
 
-import domain.model.Account;
-import domain.model.DepositTransaction;
-import domain.model.StoredTransaction;
-import domain.model.Transaction;
-import domain.model.TransactionStatus;
-import domain.model.TransferTransaction;
-import domain.model.WithdrawTransaction;
-import domain.repository.TransactionRepository;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -18,8 +10,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import domain.model.DepositTransaction;
+import domain.model.InterestAccrualTransaction;
+import domain.model.StoredTransaction;
+import domain.model.Transaction;
+import domain.model.TransactionStatus;
+import domain.model.TransferTransaction;
+import domain.model.WithdrawTransaction;
+import domain.repository.TransactionRepository;
 
-  //Сохранение и выборка транзакций в SQLite. 
+/**
+ * Сохранение и выборка транзакций в SQLite.
+ * Если установлен {@link SqliteConnectionContext}, используется его {@link java.sql.Connection} (участие в внешней БД-транзакции); иначе открывается своё соединение.
+ */
 public class SqlTransactionRepository implements TransactionRepository {
     private final Database database;
 
@@ -60,6 +63,10 @@ public class SqlTransactionRepository implements TransactionRepository {
             fromNumber = null;
             toNumber = depositTransaction.getTargetAccount().getNumber();
             currency = depositTransaction.getTargetAccount().getCurrency();
+        } else if (transaction instanceof InterestAccrualTransaction interestAccrualTransaction) {
+            fromNumber = null;
+            toNumber = interestAccrualTransaction.getTargetAccount().getNumber();
+            currency = interestAccrualTransaction.getTargetAccount().getCurrency();
         } else if (transaction instanceof WithdrawTransaction withdrawTransaction) {
             fromNumber = withdrawTransaction.getSourceAccount().getNumber();
             toNumber = null;
@@ -74,6 +81,7 @@ public class SqlTransactionRepository implements TransactionRepository {
         }
 
         long timestampMs = transaction.getTimestamp().toEpochMilli();
+
         // UPSERT: повторное сохранение по тому же transaction_id обновляет строку (например, после смены status).
         try (PreparedStatement ps = connection.prepareStatement(
                 """
@@ -143,8 +151,8 @@ public class SqlTransactionRepository implements TransactionRepository {
             }
         }
     }
-    
-    // Из БД читаем облегчённую модель без ссылок на живые аккаунты (достаточно для списка истории). 
+
+    /** Из БД читаем облегчённую модель без ссылок на живые {@link Account} (достаточно для списка истории). */
     private static StoredTransaction mapRow(ResultSet rs) throws SQLException {
         return new StoredTransaction(
                 rs.getString("transaction_id"),

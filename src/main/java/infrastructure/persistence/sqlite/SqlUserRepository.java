@@ -1,13 +1,14 @@
 package infrastructure.persistence.sqlite;
 
-import domain.model.User;
-import domain.repository.UserRepository;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Objects;
 import java.util.Optional;
+
+import domain.model.User;
+import domain.repository.UserRepository;
 
 public class SqlUserRepository implements UserRepository {
     private final Database database;
@@ -108,3 +109,4 @@ public class SqlUserRepository implements UserRepository {
         }
     }
 }
+
