@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
-Test set: application.service.AuthServiceTest
+Test set: functional.BankApiFunctionalTest
 -------------------------------------------------------------------------------
-Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.892 s -- in application.service.AuthServiceTest
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.193 s -- in functional.BankApiFunctionalTest

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" version="3.0.2" name="application.service.BankServiceTest" time="0.219" tests="6" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" version="3.0.2" name="functional.BankApiFunctionalTest" time="1.193" tests="5" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="21"/>
     <property name="sun.cpu.isalist" value="amd64"/>
@@ -59,10 +59,9 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="65.0"/>
   </properties>
-  <testcase name="testTransferMoneyToAccountNotFound" classname="application.service.BankServiceTest" time="0.164"/>
-  <testcase name="testTransferMoneyFromAccountNotFound" classname="application.service.BankServiceTest" time="0.007"/>
-  <testcase name="testFindAccount" classname="application.service.BankServiceTest" time="0.005"/>
-  <testcase name="testTransferMoney" classname="application.service.BankServiceTest" time="0.015"/>
-  <testcase name="testCreateCustomer" classname="application.service.BankServiceTest" time="0.01"/>
-  <testcase name="testCreateCustomerEmptyName" classname="application.service.BankServiceTest" time="0.009"/>
+  <testcase name="healthCheck" classname="functional.BankApiFunctionalTest" time="0.188"/>
+  <testcase name="registerSender" classname="functional.BankApiFunctionalTest" time="0.066"/>
+  <testcase name="loginSuccess" classname="functional.BankApiFunctionalTest" time="0.011"/>
+  <testcase name="loginWrongPassword" classname="functional.BankApiFunctionalTest" time="0.009"/>
+  <testcase name="dashboard" classname="functional.BankApiFunctionalTest" time="0.029"/>
 </testsuite>
